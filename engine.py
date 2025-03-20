@@ -81,6 +81,45 @@ class Value:
 
     return out
 
+    def _backward():
+      self.grad += (1 - t**2) * out.grad
+    out._backward = _backward
+
+    return out
+
+
+  def sigmoid(self):
+    # f(x) = 1/(1 + e^(-x))
+    x = self.data 
+
+    if x >= 0 :
+      sig = 1/(1 + math.exp(-x))
+    else:
+      sig = math.exp(x) / (1 + math.exp(x))
+    out = Value(sig, (self, ), 'sigmoid')
+
+    def _backward():
+      self.grad += (sig*(1 - sig)) * out.grad
+    out._backward = _backward
+
+    return out
+
+
+  def relu(self):
+    """ReLU activation function: max(0, x)"""
+    x = self.data
+    out = Value(max(0, x), (self, ), 'relu')
+    
+    def _backward():
+        self.grad += (x > 0) * out.grad
+    out._backward = _backward
+    
+    return out
+
+
+
+  # ----------------------------------
+
 
   def exp(self):
     x = self.data
