@@ -116,6 +116,38 @@ class Value:
     
     return out
 
+  def leaky_relu(self, alpha=0.01):
+    # f(x) = max(alpha*x, x)
+    x = self.data
+    out = Value(x if x > 0 else alpha*x, (self, ), f'leaky_relu{alpha}')
+
+    def _backward():
+      self.grad += (1 if x > 0 else alpha) * out.grad
+    out._backward = _backward
+
+    return out
+
+
+  def softplus(self):
+    # f(x) = log(1 + exp(x))
+    x = self.data
+    # for nuemrical stability, setting a threshold
+    if x > 20:
+      result = x
+    else:
+      result = math.log(1 + math.exp(x))
+    out = Value(result, (self, ), 'softplus')
+
+    def _backward():
+        # Derivative is sigmoid
+        if x > 20:  # For numerical stability
+            sigmoid_x = 1.0
+        else:
+            sigmoid_x = 1 / (1 + math.exp(-x))
+        self.grad += sigmoid_x * out.grad
+    out._backward = _backward
+
+    return out
 
 
   # ----------------------------------
