@@ -152,6 +152,8 @@ class Value:
 
   # ----------------------------------
 
+  # IMPORTANT MATH FUNCTIONS USED IN ACTIVATION FUNCS
+
 
   def exp(self):
     x = self.data
