@@ -14,7 +14,9 @@ class Value:
 
   def __repr__(self):
     return f"Value(data={self.data})"
+  
 
+  # IMPORTANT MATH FUNCTIONS USED IN ACTIVATION FUNCS
 
   def __add__(self, other):
     other = other if isinstance(other, Value) else Value(other) # so constants can be added to Value instances as well
@@ -68,7 +70,28 @@ class Value:
 
   def __rtruediv__(self, other):
     return other * self**-1
+  
+  def exp(self):
+    x = self.data
+    exp = Value(math.exp(x), (self, ), 'exp')
 
+    def _backward():
+      self.grad += exp.data * exp.grad # chain rule
+    exp._backward = _backward
+
+    return exp
+
+
+  def __neg__(self):
+    return self * -1
+
+  def __sub__(self, other):
+    return self + (-other)
+  
+    # ----------------------------------
+  
+
+  # ACTIVATION FUNCTIONS
 
   def tanh(self):
     x = self.data
@@ -149,29 +172,9 @@ class Value:
 
     return out
 
-
   # ----------------------------------
 
-  # IMPORTANT MATH FUNCTIONS USED IN ACTIVATION FUNCS
-
-
-  def exp(self):
-    x = self.data
-    exp = Value(math.exp(x), (self, ), 'exp')
-
-    def _backward():
-      self.grad += exp.data * exp.grad # chain rule
-    exp._backward = _backward
-
-    return exp
-
-
-  def __neg__(self):
-    return self * -1
-
-  def __sub__(self, other):
-    return self + (-other)
-
+  # BACKWARD PASS FUNC
 
   def backward(self):
 
@@ -188,3 +191,5 @@ class Value:
     self.grad = 1.0
     for node in reversed(topo):
       node._backward()
+
+  # ----------------------------------
